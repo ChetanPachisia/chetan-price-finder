@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="description" content="Chetan Price Finder — mobile price search">
+<title>Chetan Price Finder</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#111827;--muted:#667085;--line:#e4e7ec;--accent:#111827;--accent2:#2563eb;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:var(--accent);color:#fff;padding:24px 18px 28px;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px #0002}
+.wrap{max-width:760px;margin:auto}
+.brand{font-size:24px;font-weight:800;letter-spacing:-.4px}
+.sub{margin-top:4px;color:#cbd5e1;font-size:13px}
+.searchbox{margin-top:18px;position:relative}
+input{width:100%;height:54px;border:0;border-radius:14px;padding:0 48px 0 17px;font-size:17px;outline:none;box-shadow:0 5px 18px #0002}
+.clear{position:absolute;right:12px;top:9px;border:0;background:#eef2f7;width:36px;height:36px;border-radius:10px;font-size:20px;color:#667085;display:none}
+main{padding:18px}
+.hint{color:var(--muted);font-size:13px;margin:2px 2px 14px}
+.count{font-weight:700;color:var(--text)}
+.results{display:grid;gap:10px}
+.result{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:.12s}
+.result:active{transform:scale(.99)}
+.model{font-weight:750;font-size:16px;line-height:1.25}
+.meta{font-size:12px;color:var(--muted);margin-top:5px}
+.price{font-size:18px;font-weight:850;white-space:nowrap}
+.detail{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:14px;box-shadow:0 8px 30px #1018280d}
+.detail .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:750}
+.detail .big{font-size:34px;font-weight:900;margin:4px 0 18px}
+.row{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:11px 0;font-size:14px}
+.empty{padding:30px 10px;text-align:center;color:var(--muted)}
+footer{padding:25px 18px 35px;text-align:center;color:#98a2b3;font-size:11px}
+mark{background:#fff1a8;padding:0 2px;border-radius:3px}
+@media (min-width:700px){header{position:static}main{padding-top:28px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">Chetan Price Finder</div>
+    <div class="sub">Retailer Invoice Price • August 2026</div>
+    <div class="searchbox">
+      <input id="search" autocomplete="off" placeholder="Search product, model or category…" aria-label="Search products">
+      <button id="clear" class="clear" aria-label="Clear search">×</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="hint" class="hint">Type 2–3 words, e.g. <b>BLDC</b>, <b>Samraat Neo</b>, <b>Stealth Air</b>.</div>
+  <div id="results" class="results"></div>
+  <div id="detail"></div>
+</main>
+
+<footer>
+  Source: supplied “RETAILER INVOICE AUGUST- 2026” price list. Only Invoice price is displayed.
+</footer>
+
+<script>
+const PRODUCTS = [{"category":"BASE CF","sweep":"48\"","model":"DROVE-390","invoice":1884},{"category":"BASE CF","sweep":"48\"","model":"Samraat Neo ES","invoice":2105},{"category":"BASE CF","sweep":"36\"","model":"Samraat Neo ES","invoice":1978},{"category":"BASE CF","sweep":"56\"","model":"Samraat NEO","invoice":2173},{"category":"BASE CF","sweep":"48\"","model":"COMFORT-390 ( copper )","invoice":2152},{"category":"BASE CF","sweep":"48\"","model":"Xpress HS(copper )","invoice":2374},{"category":"BASE CF","sweep":"48\"","model":"Samraat HS( copper )","invoice":2623},{"category":"BASE CF","sweep":"48\"","model":"SS-390 HS( copper )","invoice":3020},{"category":"DECO C.F","sweep":"48\"","model":"Thrill Décor (Neo)","invoice":2246},{"category":"DECO C.F","sweep":"56\"","model":"Thrill Décor (Neo)","invoice":2314},{"category":"DECO C.F","sweep":"48\"","model":"Ambrose Decor HS","invoice":2287},{"category":"DECO C.F","sweep":"48\"","model":"Quick Air Neo","invoice":2690},{"category":"DECO C.F","sweep":"56\"","model":"Quick Air Neo","invoice":2805},{"category":"DECO C.F","sweep":"48\"","model":"FESTIVA NEO","invoice":3020},{"category":"DECO C.F","sweep":"48\"","model":"Victoris HS( Copper )","invoice":3067},{"category":"DECO C.F","sweep":"48\"","model":"Festiva HS ( copper )","invoice":3545},{"category":"DECO C.F","sweep":"48\"","model":"Nicola ( copper )","invoice":3524},{"category":"DECO C.F","sweep":"48\"","model":"Enticer HS( copper )","invoice":3666},{"category":"DECO C.F","sweep":"48\"","model":"LEGANZA 4 BLADE( copper )","invoice":3847},{"category":"DECO C.F","sweep":"48\"","model":"Enticer Art ( copper )","invoice":4184},{"category":"BASE BLDC","sweep":"48\"","model":"Ambrose DX BLDC","invoice":2980},{"category":"BASE BLDC","sweep":"48\"","model":"EPIC BLDC","invoice":3612},{"category":"BASE BLDC","sweep":"48\"","model":"EPIC LED","invoice":3834},{"category":"BASE BLDC","sweep":"48\"","model":"EPIC LED(WHITE & CO. BRN )","invoice":3767},{"category":"BASE BLDC","sweep":"48\"","model":"EPIC PRO WOOD BLDC","invoice":4332},{"category":"DECO BLDC","sweep":"48\"","model":"Ambrose Alpha BLDC","invoice":3632},{"category":"DECO BLDC","sweep":"48\"","model":"EPIC PLUS R & R","invoice":3793},{"category":"SPECIAL FINISH","sweep":"48\"","model":"EP Trendy ES","invoice":4944},{"category":"SPECIAL FINISH","sweep":"48\"","model":"Yorker(NEW)","invoice":8367},{"category":"SPECIAL FINISH BLDC","sweep":"48\"","model":"Stealth Slim BLDC","invoice":5845},{"category":"SPECIAL FINISH BLDC","sweep":"48\"","model":"Stealth Air BLDC","invoice":7849},{"category":"SPECIAL FINISH BLDC","sweep":"48\"","model":"Stealth Air Wood BLDC","invoice":8576},{"category":"SPECIAL FINISH BLDC","sweep":"48\"","model":"INVENO LX BLDC","invoice":8710},{"category":"SPECIAL FINISH BLDC","sweep":"48\"","model":"CRISTA BLDC","invoice":10002},{"category":"BLDC ( U/L )","sweep":"48\"","model":"EPIC UL BLDC","invoice":4547},{"category":"BLDC ( U/L )","sweep":"48\"","model":"NEOMA UL BLDC","invoice":10176},{"category":"BLDC ( U/L )","sweep":"48\"","model":"NEOMA WOOD UL BLDC","invoice":10708},{"category":"BLDC ( U/L )","sweep":"48\"","model":"STEALTH SLIM UL BLDC","invoice":6807},{"category":"BLDC ( U/L )","sweep":"48\"","model":"STEALTH AIR UL BLDC","invoice":8266},{"category":"METAL PEDESTAL","sweep":"18\"","model":"V2 Ultra","invoice":3780},{"category":"METAL PEDESTAL","sweep":"16\"","model":"Wind Storm OXY (New)","invoice":2859},{"category":"METAL PEDESTAL","sweep":"20\"","model":"Wind Storm Ultra Plus","invoice":3437},{"category":"METAL PEDESTAL","sweep":"20\"","model":"Wind Storm PRO","invoice":3706},{"category":"METAL PEDESTAL","sweep":"20\"","model":"Wind Storm Ultra Plus OXY","invoice":3908},{"category":"HS PEDESTAL","sweep":"16\"","model":"Swing PRO HS","invoice":3444},{"category":"WALL FAN- NS","sweep":"16\"","model":"Swing","invoice":2529},{"category":"WALL - HS","sweep":"9\"","model":"Candy Multipurpose","invoice":2132},{"category":"WALL - HS","sweep":"12\"","model":"Swing HS","invoice":2751},{"category":"WALL - HS","sweep":"12\"","model":"D’Zire HS","invoice":2791},{"category":"WALL - HS","sweep":"16\"","model":"Swing Pro HS Wall","invoice":2805},{"category":"WALL - HS","sweep":"18\"","model":"Airboll Hi-Speed","invoice":4957},{"category":"WALL - BLDC","sweep":"16\"","model":"GIRIK Pro BLDC","invoice":4089},{"category":"METAL WALL","sweep":"18\"","model":"V2 ULTRA NEW","invoice":3316},{"category":"TABLE - HS","sweep":"16\"","model":"Swing PRO HS","invoice":2744},{"category":"PERSONAL FANS","sweep":"9\"","model":"Birdie HS","invoice":2105},{"category":"PERSONAL FANS","sweep":"12\"","model":"Breezo HS","invoice":2657},{"category":"CABIN - HS","sweep":"9\"","model":"Ciera","invoice":2442},{"category":"CABIN - HS","sweep":"12\"","model":"Ciera","invoice":2563},{"category":"METAL EXHAUST","sweep":"6\"","model":"NEW DSP(PISTA GREEN)","invoice":1184},{"category":"METAL EXHAUST","sweep":"9\"","model":"NEW DSP(PISTA GREEN)","invoice":1325},{"category":"METAL EXHAUST","sweep":"12\"","model":"NEW DSP(PISTA GREEN)","invoice":1628},{"category":"METAL EXHAUST","sweep":"9\"","model":"DS (HS) REVERSIBLE","invoice":1964},{"category":"METAL EXHAUST","sweep":"12\"","model":"DS (HS) REVERSIBLE","invoice":2368},{"category":"METAL EXHAUST","sweep":"9\"","model":"DB","invoice":2099},{"category":"METAL EXHAUST","sweep":"12\"","model":"DB","invoice":2455},{"category":"PLASTIC EXHAUST","sweep":"6\"","model":"THRILL AIR -DLX","invoice":1271},{"category":"PLASTIC EXHAUST","sweep":"8\"","model":"THRILL AIR -DLX","invoice":1379},{"category":"PLASTIC EXHAUST","sweep":"10\"","model":"THRILL AIR -DLX","invoice":1473},{"category":"PLASTIC EXHAUST","sweep":"6\"","model":"Ventil Air - DXZ Neo","invoice":1164},{"category":"PLASTIC EXHAUST","sweep":"6\"","model":"Ventil Air - LX","invoice":1547},{"category":"PLASTIC EXHAUST","sweep":"8\"","model":"Ventil Air - LX","invoice":1715},{"category":"HEAVY DUTY EXHAUST","sweep":"12\"","model":"TURBOFORCE DX (1400 RPM)","invoice":3013},{"category":"HEAVY DUTY EXHAUST","sweep":"15\"","model":"TURBOFORCE DX (1400 RPM)","invoice":3511},{"category":"HEAVY DUTY EXHAUST","sweep":"18\"","model":"TURBOFORCE NX (1400 RPM)","invoice":4580},{"category":"HEAVY DUTY EXHAUST","sweep":"24\"","model":"TURBOFORCE DX (900 RPM)","invoice":9060},{"category":"AIRCIRCULATOR - WALL","sweep":"18\"","model":"WALL FANS","invoice":8112},{"category":"AIRCIRCULATOR - WALL","sweep":"24\"","model":"T.Force XL Wall","invoice":8125},{"category":"AIRCIRCULATOR - WALL","sweep":"30\"","model":"WALL FANS","invoice":12719},{"category":"AIRCIRCULATOR - PED","sweep":"18\"","model":"PEDESTAL FANS","invoice":8999},{"category":"AIRCIRCULATOR - PED","sweep":"24\"","model":"PEDESTAL FANS","invoice":11771},{"category":"AIRCIRCULATOR - PED","sweep":"30\"","model":"PEDESTAL FANS","invoice":14528}];
+
+const search = document.getElementById('search');
+const results = document.getElementById('results');
+const detail = document.getElementById('detail');
+const hint = document.getElementById('hint');
+const clearBtn = document.getElementById('clear');
+
+function norm(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+}
+
+function score(p, q) {
+  const nq = norm(q);
+  const tokens = nq.split(/\s+/).filter(Boolean);
+  const text = norm(p.category + ' ' + p.model + ' ' + p.sweep);
+  const model = norm(p.model);
+  let s = 0;
+  if (model === nq) s += 100;
+  if (model.includes(nq)) s += 40;
+  if (text.includes(nq)) s += 25;
+  for (const t of tokens) {
+    if (model.includes(t)) s += 12;
+    else if (norm(p.category).includes(t)) s += 8;
+    else if (text.includes(t)) s += 4;
+    else return -1;
+  }
+  return s;
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function highlight(s, q) {
+  const parts = q.trim().split(/\s+/).filter(Boolean);
+  let out = esc(s);
+  for (const t of parts) {
+    if (!t) continue;
+    const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')','ig');
+    out = out.replace(re, '<mark>$1</mark>');
+  }
+  return out;
+}
+
+function render(q) {
+  clearBtn.style.display = q ? 'block' : 'none';
+  detail.innerHTML = '';
+  if (!q.trim()) {
+    hint.innerHTML = 'Type 2–3 words, e.g. <b>BLDC</b>, <b>Samraat Neo</b>, <b>Stealth Air</b>.';
+    results.innerHTML = '';
+    return;
+  }
+  const matches = PRODUCTS.map((p,i)=>({p,i,s:score(p,q)}))
+    .filter(x=>x.s>=0)
+    .sort((a,b)=>b.s-a.s || a.p.model.localeCompare(b.p.model))
+    .slice(0,50);
+  hint.innerHTML = '<span class="count">' + matches.length + '</span> product' + (matches.length===1?'':'s') + ' found';
+  results.innerHTML = matches.length ? matches.map(x=>`
+    <div class="result" onclick="showDetail(${x.i})">
+      <div>
+        <div class="model">${highlight(x.p.model,q)}</div>
+        <div class="meta">${esc(x.p.category)} • ${esc(x.p.sweep)}</div>
+      </div>
+      <div class="price">₹${x.p.invoice.toLocaleString('en-IN')}</div>
+    </div>`).join('') : '<div class="empty">No matching product found.<br>Try fewer words.</div>';
+}
+
+window.showDetail = function(i) {
+  const p = PRODUCTS[i];
+  detail.innerHTML = `
+    <div class="detail">
+      <div class="label">Invoice Price</div>
+      <div class="big">₹${p.invoice.toLocaleString('en-IN')}</div>
+      <div class="row"><span>Model</span><b>${esc(p.model)}</b></div>
+      <div class="row"><span>Category</span><b>${esc(p.category)}</b></div>
+      <div class="row"><span>Sweep</span><b>${esc(p.sweep)}</b></div>
+    </div>`;
+  detail.scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+
+search.addEventListener('input', e => render(e.target.value));
+clearBtn.addEventListener('click', ()=>{search.value=''; search.focus(); render('');});
+</script>
+</body>
+</html>
